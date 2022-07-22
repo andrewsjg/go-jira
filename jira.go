@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -145,7 +146,10 @@ func (c *Client) NewRawRequestWithContext(ctx context.Context, method, urlStr st
 	} else if c.Authentication.authType == authTypeBasic {
 		// Set basic auth information
 		if c.Authentication.username != "" {
-			req.SetBasicAuth(c.Authentication.username, c.Authentication.password)
+			//req.SetBasicAuth(c.Authentication.username, c.Authentication.password)
+			creds := []byte(c.Authentication.username + ":" + c.Authentication.password)
+			b64creds := base64.StdEncoding.EncodeToString(creds)
+			req.Header.Add("Authorization", "Basic "+b64creds)
 		}
 	}
 
