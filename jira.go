@@ -201,7 +201,10 @@ func (c *Client) NewRequestWithContext(ctx context.Context, method, urlStr strin
 	} else if c.Authentication.authType == authTypeBasic {
 		// Set basic auth information
 		if c.Authentication.username != "" {
-			req.SetBasicAuth(c.Authentication.username, c.Authentication.password)
+			//req.SetBasicAuth(c.Authentication.username, c.Authentication.password)
+			creds := []byte(c.Authentication.username + ":" + c.Authentication.password)
+			b64creds := base64.StdEncoding.EncodeToString(creds)
+			req.Header.Add("Authorization", "Basic "+b64creds)
 		}
 	}
 
@@ -267,7 +270,10 @@ func (c *Client) NewMultiPartRequestWithContext(ctx context.Context, method, url
 	} else if c.Authentication.authType == authTypeBasic {
 		// Set basic auth information
 		if c.Authentication.username != "" {
-			req.SetBasicAuth(c.Authentication.username, c.Authentication.password)
+			//req.SetBasicAuth(c.Authentication.username, c.Authentication.password)
+			creds := []byte(c.Authentication.username + ":" + c.Authentication.password)
+			b64creds := base64.StdEncoding.EncodeToString(creds)
+			req.Header.Add("Authorization", "Basic "+b64creds)
 		}
 	}
 
@@ -370,7 +376,11 @@ type BasicAuthTransport struct {
 func (t *BasicAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req2 := cloneRequest(req) // per RoundTripper contract
 
-	req2.SetBasicAuth(t.Username, t.Password)
+	creds := []byte(t.Username + ":" + t.Password)
+	b64creds := base64.StdEncoding.EncodeToString(creds)
+	req2.Header.Add("Authorization", "Basic "+b64creds)
+
+	//req2.SetBasicAuth(t.Username, t.Password)
 	return t.transport().RoundTrip(req2)
 }
 
